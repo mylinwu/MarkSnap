@@ -1,6 +1,8 @@
+'use client';
+
 import React from 'react';
 import { Code2, Loader2, Image as ImageIcon, Layers, Settings } from 'lucide-react';
-import { ToolbarProps } from '../types';
+import { ToolbarProps } from '@/lib/types';
 
 const Toolbar: React.FC<ToolbarProps> = ({ onExport, isExporting, segmentCount, onOpenSettings }) => {
   return (

@@ -1,11 +1,13 @@
-import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+'use client';
+
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { toPng } from 'html-to-image';
-import Toolbar from './components/Toolbar';
-import Editor from './components/Editor';
-import Preview from './components/Preview';
-import ThemeModal from './components/ThemeModal';
-import { DEFAULT_MARKDOWN } from './constants';
-import { CanvasMode, ThemeConfig } from './types';
+import Toolbar from '@/components/Toolbar';
+import Editor from '@/components/Editor';
+import Preview from '@/components/Preview';
+import ThemeModal from '@/components/ThemeModal';
+import { DEFAULT_MARKDOWN } from '@/lib/constants';
+import { CanvasMode, ThemeConfig } from '@/lib/types';
 
 const STORAGE_KEYS = {
   MARKDOWN: 'marksnap_content',
@@ -18,54 +20,60 @@ const DEFAULT_THEME_CONFIG: ThemeConfig = {
   customCss: ''
 };
 
-const App: React.FC = () => {
+export default function Home() {
   // Initialize state from local storage or defaults
-  const [markdown, setMarkdown] = useState<string>(() => 
-    localStorage.getItem(STORAGE_KEYS.MARKDOWN) ?? DEFAULT_MARKDOWN
-  );
-  
-  const [canvasMode, setCanvasMode] = useState<CanvasMode>(() => 
-    (localStorage.getItem(STORAGE_KEYS.CANVAS_MODE) as CanvasMode) ?? 'auto'
-  );
-
-  const [customWidth, setCustomWidth] = useState<number>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CUSTOM_WIDTH);
-    return saved ? parseInt(saved, 10) : 800;
-  });
-
-  const [themeConfig, setThemeConfig] = useState<ThemeConfig>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.THEME_CONFIG);
-    if (saved) {
-       // Migration: if the saved config has presetId (old version), clean it up or ignore it
-       try {
-         const parsed = JSON.parse(saved);
-         return { customCss: parsed.customCss || '' };
-       } catch (e) {
-         return DEFAULT_THEME_CONFIG;
-       }
-    }
-    return DEFAULT_THEME_CONFIG;
-  });
-
+  const [markdown, setMarkdown] = useState<string>(DEFAULT_MARKDOWN);
+  const [canvasMode, setCanvasMode] = useState<CanvasMode>('auto');
+  const [customWidth, setCustomWidth] = useState<number>(800);
+  const [themeConfig, setThemeConfig] = useState<ThemeConfig>(DEFAULT_THEME_CONFIG);
   const [isExporting, setIsExporting] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
-  
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Hydrate state from localStorage on mount
+  useEffect(() => {
+    const savedMarkdown = localStorage.getItem(STORAGE_KEYS.MARKDOWN);
+    if (savedMarkdown !== null) setMarkdown(savedMarkdown);
+
+    const savedMode = localStorage.getItem(STORAGE_KEYS.CANVAS_MODE) as CanvasMode;
+    if (savedMode) setCanvasMode(savedMode);
+
+    const savedWidth = localStorage.getItem(STORAGE_KEYS.CUSTOM_WIDTH);
+    if (savedWidth) setCustomWidth(parseInt(savedWidth, 10));
+
+    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME_CONFIG);
+    if (savedTheme) {
+      try {
+        const parsed = JSON.parse(savedTheme);
+        setThemeConfig({ customCss: parsed.customCss || '' });
+      } catch {
+        // ignore parse errors
+      }
+    }
+
+    setIsHydrated(true);
+  }, []);
+
   // Persist state changes to local storage
   useEffect(() => {
+    if (!isHydrated) return;
     localStorage.setItem(STORAGE_KEYS.MARKDOWN, markdown);
-  }, [markdown]);
+  }, [markdown, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     localStorage.setItem(STORAGE_KEYS.CANVAS_MODE, canvasMode);
-  }, [canvasMode]);
+  }, [canvasMode, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     localStorage.setItem(STORAGE_KEYS.CUSTOM_WIDTH, customWidth.toString());
-  }, [customWidth]);
+  }, [customWidth, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     localStorage.setItem(STORAGE_KEYS.THEME_CONFIG, JSON.stringify(themeConfig));
-  }, [themeConfig]);
+  }, [themeConfig, isHydrated]);
 
   // Store refs for each segment
   const segmentRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -111,7 +119,7 @@ const App: React.FC = () => {
         const dataUrl = await toPng(node, {
           cacheBust: true,
           pixelRatio: 2,
-          backgroundColor: null as any, 
+          backgroundColor: null as unknown as string,
           style: { margin: '0' }
         });
 
@@ -173,6 +181,4 @@ const App: React.FC = () => {
       />
     </div>
   );
-};
-
-export default App;
+}

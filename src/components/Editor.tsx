@@ -1,5 +1,7 @@
+'use client';
+
 import React from 'react';
-import { EditorProps } from '../types';
+import { EditorProps } from '@/lib/types';
 
 const Editor: React.FC<EditorProps> = ({ value, onChange, className }) => {
   return (

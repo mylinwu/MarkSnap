@@ -1,7 +1,9 @@
+'use client';
+
 import React from 'react';
-import { X, Palette, Copy, ChevronRight } from 'lucide-react';
-import { ThemeModalProps } from '../types';
-import { THEME_PRESETS } from '../constants';
+import { X, Palette, ChevronRight } from 'lucide-react';
+import { ThemeModalProps } from '@/lib/types';
+import { THEME_PRESETS } from '@/lib/constants';
 
 const ThemeModal: React.FC<ThemeModalProps> = ({ isOpen, onClose, themeConfig, setThemeConfig }) => {
   if (!isOpen) return null;
@@ -72,7 +74,7 @@ const ThemeModal: React.FC<ThemeModalProps> = ({ isOpen, onClose, themeConfig, s
             <textarea
               value={themeConfig.customCss}
               onChange={(e) => handleCssChange(e.target.value)}
-              placeholder="/* No custom style loaded. Default GitHub Light style is active. */&#10;&#10;/* Click a template on the left to load styles, or write your own here. */"
+              placeholder={"/* No custom style loaded. Default GitHub Light style is active. */\n\n/* Click a template on the left to load styles, or write your own here. */"}
               className="flex-1 w-full p-6 font-mono text-sm bg-slate-900 text-slate-200 focus:outline-none resize-none"
               spellCheck={false}
             />

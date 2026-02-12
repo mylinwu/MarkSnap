@@ -1,9 +1,11 @@
+'use client';
+
 import React, { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Smartphone, Tablet, Monitor, Layout, Sliders } from 'lucide-react';
-import { PreviewProps, CanvasMode } from '../types';
-import { GITHUB_LIGHT_CSS } from '../constants';
+import { PreviewProps, CanvasMode } from '@/lib/types';
+import { GITHUB_LIGHT_CSS } from '@/lib/constants';
 
 const Preview: React.FC<PreviewProps> = ({ 
   segments, 
@@ -33,7 +35,7 @@ const Preview: React.FC<PreviewProps> = ({
     return css;
   }, [themeConfig.customCss]);
 
-  const ModeButton = ({ mode, icon: Icon, label }: { mode: CanvasMode, icon: any, label: string }) => (
+  const ModeButton = ({ mode, icon: Icon, label }: { mode: CanvasMode, icon: React.ComponentType<{ className?: string }>, label: string }) => (
     <button
       onClick={() => setCanvasMode(mode)}
       className={`p-1.5 rounded-md transition-colors flex items-center gap-2 text-xs font-medium ${
